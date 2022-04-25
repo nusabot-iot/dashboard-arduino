@@ -1,12 +1,12 @@
 #######################################
-# Syntax Coloring Map For PubSubClient
+# Syntax Coloring Map For Dashboard
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-PubSubClient	KEYWORD1
+Dashboard	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
