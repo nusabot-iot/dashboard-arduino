@@ -1,14 +1,13 @@
-#include <WiFi.h>
-#include "Dashboard.h"
+#include <ESP8266WiFi.h>
+#include <Dashboard.h>
 
-#define BUTTON 34    // Using potentiometer as example. (Menggunakan potentiometer sebagai contoh)
-#define LED 15
+#define BUTTON 12    // Using Button on GPIO12. (Menggunakan Button pada GPIO12)
 
 // Update these with values suitable for your network. (Ubah value berikut sesuai jaringan kamu.)
-const char* ssid = "Wokwi-GUEST";
-const char* password = "";
+const char* ssid = "......";
+const char* password = "......";
 const char* server = "broker.emqx.io";
-const char* authProject = "nusabot";
+const char* authProject = "......";
 
 // Set the Client ID with random number. You can change with any Client ID. (Atur Client ID dengan nomor acak. Anda bisa menggantinya dengan Client ID apapun.)
 // String CleintId = "YourClientId";
