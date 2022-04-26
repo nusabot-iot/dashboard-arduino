@@ -14,7 +14,7 @@ String authProject = "........";
 String subscribeTopic = "........";
 
 // Set the Client ID with random number. You can change with any Client ID.
-// Atur Client ID dengan nomor acar. Anda bisa menggantinya dengan Client ID apapun.
+// Atur Client ID dengan nomor acak. Anda bisa menggantinya dengan Client ID apapun.
 // String CleintId = "YourClientId";
 String clientId = "ClientName-" + String(random(0xffff), HEX);
 
