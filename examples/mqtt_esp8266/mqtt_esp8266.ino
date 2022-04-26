@@ -42,7 +42,7 @@ void subscribe(char* topic, byte* payload, unsigned int length) {
   }
 
   if(String(topic) == String(authProject) + "/led"){
-    digitalWrite(LED, subsMessage.toInt());
+    digitalWrite(BUILTIN_LED, subsMessage.toInt());
 
     if(subsMessage.toInt() == 1){
       Serial.println("LED ON");
@@ -75,8 +75,8 @@ void reconnect() {
 }
 
 void setup() {
-  pinMode(LED, OUTPUT);       // Initialize the BUILTIN_LED pin as an output (Inisialisasi BUILTIN_LED sebagai output)
-  pinMode(BUTTON, INPUT);      // Initialize A0 as input for analog sensor. You can use potentiometer fo example. (Inisialisasi A0 sebagai input untuk sensor analog. Anda dapat menggunakan )
+  pinMode(BUILTIN_LED, OUTPUT);       // Initialize the BUILTIN_LED pin as an output (Inisialisasi BUILTIN_LED sebagai output)
+  pinMode(BUTTON, INPUT);             // Initialize BUTTON as input for digital sensor. (Inisialisasi BUTTON sebagai input untuk sensor digital.)
   
   Serial.begin(115200);
   setup_wifi();
