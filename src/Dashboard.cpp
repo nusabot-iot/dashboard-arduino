@@ -1,14 +1,16 @@
 /*
 
-  PubSubClient.cpp - A simple client for MQTT.
-  Nick O'Leary
-  http://knolleary.net
+  Dashboard.cpp - Library for Dashboard IoT Platform.
+  Lorenz Adam Damara
+  https://dashboard.nusabot.com
 */
 
-#include "PubSubClient.h"
+#include "Dashboard.h"
 #include "Arduino.h"
 
-PubSubClient::PubSubClient() {
+static inline unsigned long elapsed() { return millis(); }
+
+Dashboard::Dashboard() {
     this->_state = MQTT_DISCONNECTED;
     this->_client = NULL;
     this->stream = NULL;
@@ -19,7 +21,7 @@ PubSubClient::PubSubClient() {
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
 
-PubSubClient::PubSubClient(Client& client) {
+Dashboard::Dashboard(Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setClient(client);
     this->stream = NULL;
@@ -29,7 +31,7 @@ PubSubClient::PubSubClient(Client& client) {
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
 
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client) {
+Dashboard::Dashboard(IPAddress addr, uint16_t port, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr, port);
     setClient(client);
@@ -39,7 +41,7 @@ PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client) {
     setKeepAlive(MQTT_KEEPALIVE);
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client, Stream& stream) {
+Dashboard::Dashboard(IPAddress addr, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr,port);
     setClient(client);
@@ -49,7 +51,7 @@ PubSubClient::PubSubClient(IPAddress addr, uint16_t port, Client& client, Stream
     setKeepAlive(MQTT_KEEPALIVE);
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
+Dashboard::Dashboard(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr, port);
     setCallback(callback);
@@ -60,7 +62,7 @@ PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATUR
     setKeepAlive(MQTT_KEEPALIVE);
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
-PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
+Dashboard::Dashboard(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr,port);
     setCallback(callback);
@@ -72,7 +74,7 @@ PubSubClient::PubSubClient(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATUR
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
 
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client) {
+Dashboard::Dashboard(uint8_t *ip, uint16_t port, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip, port);
     setClient(client);
@@ -82,7 +84,7 @@ PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client) {
     setKeepAlive(MQTT_KEEPALIVE);
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client, Stream& stream) {
+Dashboard::Dashboard(uint8_t *ip, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip,port);
     setClient(client);
@@ -92,7 +94,7 @@ PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, Client& client, Stream& s
     setKeepAlive(MQTT_KEEPALIVE);
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
+Dashboard::Dashboard(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip, port);
     setCallback(callback);
@@ -103,7 +105,7 @@ PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, 
     setKeepAlive(MQTT_KEEPALIVE);
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
-PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
+Dashboard::Dashboard(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip,port);
     setCallback(callback);
@@ -115,7 +117,7 @@ PubSubClient::PubSubClient(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, 
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
 
-PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client) {
+Dashboard::Dashboard(const char* domain, uint16_t port, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setClient(client);
@@ -125,7 +127,7 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client) {
     setKeepAlive(MQTT_KEEPALIVE);
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
-PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client, Stream& stream) {
+Dashboard::Dashboard(const char* domain, uint16_t port, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setClient(client);
@@ -135,7 +137,7 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, Client& client, St
     setKeepAlive(MQTT_KEEPALIVE);
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
-PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
+Dashboard::Dashboard(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setCallback(callback);
@@ -146,7 +148,7 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGN
     setKeepAlive(MQTT_KEEPALIVE);
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
-PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
+Dashboard::Dashboard(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setCallback(callback);
@@ -158,27 +160,235 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGN
     setSocketTimeout(MQTT_SOCKET_TIMEOUT);
 }
 
-PubSubClient::~PubSubClient() {
+Dashboard::~Dashboard() {
   free(this->buffer);
 }
 
-boolean PubSubClient::connect(const char *id) {
+DashboardTimer::DashboardTimer() {
+    unsigned long current_millis = elapsed();
+
+    for (int i = 0; i < MAX_TIMERS; i++) {
+        enabled[i] = false;
+        callbacks[i] = 0;                   // if the callback pointer is zero, the slot is free, i.e. doesn't "contain" any timer
+        prev_millis[i] = current_millis;
+        numRuns[i] = 0;
+    }
+
+    numTimers = 0;
+}
+
+
+void DashboardTimer::run() {
+    int i;
+    unsigned long current_millis;
+
+    // get current time
+    current_millis = elapsed();
+
+    for (i = 0; i < MAX_TIMERS; i++) {
+
+        toBeCalled[i] = DEFCALL_DONTRUN;
+
+        // no callback == no timer, i.e. jump over empty slots
+        if (callbacks[i]) {
+
+            // is it time to process this timer ?
+            // see http://arduino.cc/forum/index.php/topic,124048.msg932592.html#msg932592
+
+            if (current_millis - prev_millis[i] >= delays[i]) {
+
+                // update time
+                //prev_millis[i] = current_millis;
+                prev_millis[i] += delays[i];
+
+                // check if the timer callback has to be executed
+                if (enabled[i]) {
+
+                    // "run forever" timers must always be executed
+                    if (maxNumRuns[i] == RUN_FOREVER) {
+                        toBeCalled[i] = DEFCALL_RUNONLY;
+                    }
+                    // other timers get executed the specified number of times
+                    else if (numRuns[i] < maxNumRuns[i]) {
+                        toBeCalled[i] = DEFCALL_RUNONLY;
+                        numRuns[i]++;
+
+                        // after the last run, delete the timer
+                        if (numRuns[i] >= maxNumRuns[i]) {
+                            toBeCalled[i] = DEFCALL_RUNANDDEL;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for (i = 0; i < MAX_TIMERS; i++) {
+        switch(toBeCalled[i]) {
+            case DEFCALL_DONTRUN:
+                break;
+
+            case DEFCALL_RUNONLY:
+                callbacks[i]();
+                break;
+
+            case DEFCALL_RUNANDDEL:
+                callbacks[i]();
+                deleteTimer(i);
+                break;
+        }
+    }
+}
+
+
+// find the first available slot
+// return -1 if none found
+int DashboardTimer::findFirstFreeSlot() {
+    int i;
+
+    // all slots are used
+    if (numTimers >= MAX_TIMERS) {
+        return -1;
+    }
+
+    // return the first slot with no callback (i.e. free)
+    for (i = 0; i < MAX_TIMERS; i++) {
+        if (callbacks[i] == 0) {
+            return i;
+        }
+    }
+
+    // no free slots found
+    return -1;
+}
+
+
+int DashboardTimer::setTimer(unsigned long d, timer_callback f, int n) {
+    int freeTimer;
+
+    freeTimer = findFirstFreeSlot();
+    if (freeTimer < 0) {
+        return -1;
+    }
+
+    if (f == NULL) {
+        return -1;
+    }
+
+    delays[freeTimer] = d;
+    callbacks[freeTimer] = f;
+    maxNumRuns[freeTimer] = n;
+    enabled[freeTimer] = true;
+    prev_millis[freeTimer] = elapsed();
+
+    numTimers++;
+
+    return freeTimer;
+}
+
+
+int DashboardTimer::setInterval(unsigned long d, timer_callback f) {
+    return setTimer(d, f, RUN_FOREVER);
+}
+
+
+int DashboardTimer::setTimeout(unsigned long d, timer_callback f) {
+    return setTimer(d, f, RUN_ONCE);
+}
+
+
+void DashboardTimer::deleteTimer(int timerId) {
+    if (timerId >= MAX_TIMERS) {
+        return;
+    }
+
+    // nothing to delete if no timers are in use
+    if (numTimers == 0) {
+        return;
+    }
+
+    // don't decrease the number of timers if the
+    // specified slot is already empty
+    if (callbacks[timerId] != NULL) {
+        callbacks[timerId] = 0;
+        enabled[timerId] = false;
+        toBeCalled[timerId] = DEFCALL_DONTRUN;
+        delays[timerId] = 0;
+        numRuns[timerId] = 0;
+
+        // update number of timers
+        numTimers--;
+    }
+}
+
+
+// function contributed by code@rowansimms.com
+void DashboardTimer::restartTimer(int numTimer) {
+    if (numTimer >= MAX_TIMERS) {
+        return;
+    }
+
+    prev_millis[numTimer] = elapsed();
+}
+
+
+boolean DashboardTimer::isEnabled(int numTimer) {
+    if (numTimer >= MAX_TIMERS) {
+        return false;
+    }
+
+    return enabled[numTimer];
+}
+
+
+void DashboardTimer::enable(int numTimer) {
+    if (numTimer >= MAX_TIMERS) {
+        return;
+    }
+
+    enabled[numTimer] = true;
+}
+
+
+void DashboardTimer::disable(int numTimer) {
+    if (numTimer >= MAX_TIMERS) {
+        return;
+    }
+
+    enabled[numTimer] = false;
+}
+
+
+void DashboardTimer::toggle(int numTimer) {
+    if (numTimer >= MAX_TIMERS) {
+        return;
+    }
+
+    enabled[numTimer] = !enabled[numTimer];
+}
+
+
+int DashboardTimer::getNumTimers() {
+    return numTimers;
+}
+
+boolean Dashboard::connect(const char *id) {
     return connect(id,NULL,NULL,0,0,0,0,1);
 }
 
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass) {
+boolean Dashboard::connect(const char *id, const char *user, const char *pass) {
     return connect(id,user,pass,0,0,0,0,1);
 }
 
-boolean PubSubClient::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
+boolean Dashboard::connect(const char *id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
     return connect(id,NULL,NULL,willTopic,willQos,willRetain,willMessage,1);
 }
 
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
+boolean Dashboard::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
     return connect(id,user,pass,willTopic,willQos,willRetain,willMessage,1);
 }
 
-boolean PubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, boolean cleanSession) {
+boolean Dashboard::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage, boolean cleanSession) {
     if (!connected()) {
         int result = 0;
 
@@ -285,7 +495,7 @@ boolean PubSubClient::connect(const char *id, const char *user, const char *pass
 }
 
 // reads a byte into result
-boolean PubSubClient::readByte(uint8_t * result) {
+boolean Dashboard::readByte(uint8_t * result) {
    uint32_t previousMillis = millis();
    while(!_client->available()) {
      yield();
@@ -299,7 +509,7 @@ boolean PubSubClient::readByte(uint8_t * result) {
 }
 
 // reads a byte into result[*index] and increments index
-boolean PubSubClient::readByte(uint8_t * result, uint16_t * index){
+boolean Dashboard::readByte(uint8_t * result, uint16_t * index){
   uint16_t current_index = *index;
   uint8_t * write_address = &(result[current_index]);
   if(readByte(write_address)){
@@ -309,7 +519,7 @@ boolean PubSubClient::readByte(uint8_t * result, uint16_t * index){
   return false;
 }
 
-uint32_t PubSubClient::readPacket(uint8_t* lengthLength) {
+uint32_t Dashboard::readPacket(uint8_t* lengthLength) {
     uint16_t len = 0;
     if(!readByte(this->buffer, &len)) return 0;
     bool isPublish = (this->buffer[0]&0xF0) == MQTTPUBLISH;
@@ -367,7 +577,7 @@ uint32_t PubSubClient::readPacket(uint8_t* lengthLength) {
     return len;
 }
 
-boolean PubSubClient::loop() {
+boolean Dashboard::loop() {
     if (connected()) {
         unsigned long t = millis();
         if ((t - lastInActivity > this->keepAlive*1000UL) || (t - lastOutActivity > this->keepAlive*1000UL)) {
@@ -433,19 +643,19 @@ boolean PubSubClient::loop() {
     return false;
 }
 
-boolean PubSubClient::publish(const char* topic, const char* payload) {
+boolean Dashboard::publish(const char* topic, const char* payload) {
     return publish(topic,(const uint8_t*)payload, payload ? strnlen(payload, this->bufferSize) : 0,false);
 }
 
-boolean PubSubClient::publish(const char* topic, const char* payload, boolean retained) {
+boolean Dashboard::publish(const char* topic, const char* payload, boolean retained) {
     return publish(topic,(const uint8_t*)payload, payload ? strnlen(payload, this->bufferSize) : 0,retained);
 }
 
-boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength) {
+boolean Dashboard::publish(const char* topic, const uint8_t* payload, unsigned int plength) {
     return publish(topic, payload, plength, false);
 }
 
-boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
+boolean Dashboard::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
     if (connected()) {
         if (this->bufferSize < MQTT_MAX_HEADER_SIZE + 2+strnlen(topic, this->bufferSize) + plength) {
             // Too long
@@ -471,11 +681,11 @@ boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigne
     return false;
 }
 
-boolean PubSubClient::publish_P(const char* topic, const char* payload, boolean retained) {
+boolean Dashboard::publish_P(const char* topic, const char* payload, boolean retained) {
     return publish_P(topic, (const uint8_t*)payload, payload ? strnlen(payload, this->bufferSize) : 0, retained);
 }
 
-boolean PubSubClient::publish_P(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
+boolean Dashboard::publish_P(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
     uint8_t llen = 0;
     uint8_t digit;
     unsigned int rc = 0;
@@ -523,7 +733,7 @@ boolean PubSubClient::publish_P(const char* topic, const uint8_t* payload, unsig
     return (rc == expectedLength);
 }
 
-boolean PubSubClient::beginPublish(const char* topic, unsigned int plength, boolean retained) {
+boolean Dashboard::beginPublish(const char* topic, unsigned int plength, boolean retained) {
     if (connected()) {
         // Send the header and variable length field
         uint16_t length = MQTT_MAX_HEADER_SIZE;
@@ -540,21 +750,21 @@ boolean PubSubClient::beginPublish(const char* topic, unsigned int plength, bool
     return false;
 }
 
-int PubSubClient::endPublish() {
+int Dashboard::endPublish() {
  return 1;
 }
 
-size_t PubSubClient::write(uint8_t data) {
+size_t Dashboard::write(uint8_t data) {
     lastOutActivity = millis();
     return _client->write(data);
 }
 
-size_t PubSubClient::write(const uint8_t *buffer, size_t size) {
+size_t Dashboard::write(const uint8_t *buffer, size_t size) {
     lastOutActivity = millis();
     return _client->write(buffer,size);
 }
 
-size_t PubSubClient::buildHeader(uint8_t header, uint8_t* buf, uint16_t length) {
+size_t Dashboard::buildHeader(uint8_t header, uint8_t* buf, uint16_t length) {
     uint8_t lenBuf[4];
     uint8_t llen = 0;
     uint8_t digit;
@@ -578,7 +788,7 @@ size_t PubSubClient::buildHeader(uint8_t header, uint8_t* buf, uint16_t length) 
     return llen+1; // Full header size is variable length bit plus the 1-byte fixed header
 }
 
-boolean PubSubClient::write(uint8_t header, uint8_t* buf, uint16_t length) {
+boolean Dashboard::write(uint8_t header, uint8_t* buf, uint16_t length) {
     uint16_t rc;
     uint8_t hlen = buildHeader(header, buf, length);
 
@@ -602,11 +812,11 @@ boolean PubSubClient::write(uint8_t header, uint8_t* buf, uint16_t length) {
 #endif
 }
 
-boolean PubSubClient::subscribe(const char* topic) {
+boolean Dashboard::subscribe(const char* topic) {
     return subscribe(topic, 0);
 }
 
-boolean PubSubClient::subscribe(const char* topic, uint8_t qos) {
+boolean Dashboard::subscribe(const char* topic, uint8_t qos) {
     size_t topicLength = strnlen(topic, this->bufferSize);
     if (topic == 0) {
         return false;
@@ -634,7 +844,7 @@ boolean PubSubClient::subscribe(const char* topic, uint8_t qos) {
     return false;
 }
 
-boolean PubSubClient::unsubscribe(const char* topic) {
+boolean Dashboard::unsubscribe(const char* topic) {
 	size_t topicLength = strnlen(topic, this->bufferSize);
     if (topic == 0) {
         return false;
@@ -657,7 +867,7 @@ boolean PubSubClient::unsubscribe(const char* topic) {
     return false;
 }
 
-void PubSubClient::disconnect() {
+void Dashboard::disconnect() {
     this->buffer[0] = MQTTDISCONNECT;
     this->buffer[1] = 0;
     _client->write(this->buffer,2);
@@ -667,7 +877,7 @@ void PubSubClient::disconnect() {
     lastInActivity = lastOutActivity = millis();
 }
 
-uint16_t PubSubClient::writeString(const char* string, uint8_t* buf, uint16_t pos) {
+uint16_t Dashboard::writeString(const char* string, uint8_t* buf, uint16_t pos) {
     const char* idp = string;
     uint16_t i = 0;
     pos += 2;
@@ -681,7 +891,7 @@ uint16_t PubSubClient::writeString(const char* string, uint8_t* buf, uint16_t po
 }
 
 
-boolean PubSubClient::connected() {
+boolean Dashboard::connected() {
     boolean rc;
     if (_client == NULL ) {
         rc = false;
@@ -700,44 +910,44 @@ boolean PubSubClient::connected() {
     return rc;
 }
 
-PubSubClient& PubSubClient::setServer(uint8_t * ip, uint16_t port) {
+Dashboard& Dashboard::setServer(uint8_t * ip, uint16_t port) {
     IPAddress addr(ip[0],ip[1],ip[2],ip[3]);
     return setServer(addr,port);
 }
 
-PubSubClient& PubSubClient::setServer(IPAddress ip, uint16_t port) {
+Dashboard& Dashboard::setServer(IPAddress ip, uint16_t port) {
     this->ip = ip;
     this->port = port;
     this->domain = NULL;
     return *this;
 }
 
-PubSubClient& PubSubClient::setServer(const char * domain, uint16_t port) {
+Dashboard& Dashboard::setServer(const char * domain, uint16_t port) {
     this->domain = domain;
     this->port = port;
     return *this;
 }
 
-PubSubClient& PubSubClient::setCallback(MQTT_CALLBACK_SIGNATURE) {
+Dashboard& Dashboard::setCallback(MQTT_CALLBACK_SIGNATURE) {
     this->callback = callback;
     return *this;
 }
 
-PubSubClient& PubSubClient::setClient(Client& client){
+Dashboard& Dashboard::setClient(Client& client){
     this->_client = &client;
     return *this;
 }
 
-PubSubClient& PubSubClient::setStream(Stream& stream){
+Dashboard& Dashboard::setStream(Stream& stream){
     this->stream = &stream;
     return *this;
 }
 
-int PubSubClient::state() {
+int Dashboard::state() {
     return this->_state;
 }
 
-boolean PubSubClient::setBufferSize(uint16_t size) {
+boolean Dashboard::setBufferSize(uint16_t size) {
     if (size == 0) {
         // Cannot set it back to 0
         return false;
@@ -756,14 +966,14 @@ boolean PubSubClient::setBufferSize(uint16_t size) {
     return (this->buffer != NULL);
 }
 
-uint16_t PubSubClient::getBufferSize() {
+uint16_t Dashboard::getBufferSize() {
     return this->bufferSize;
 }
-PubSubClient& PubSubClient::setKeepAlive(uint16_t keepAlive) {
+Dashboard& Dashboard::setKeepAlive(uint16_t keepAlive) {
     this->keepAlive = keepAlive;
     return *this;
 }
-PubSubClient& PubSubClient::setSocketTimeout(uint16_t timeout) {
+Dashboard& Dashboard::setSocketTimeout(uint16_t timeout) {
     this->socketTimeout = timeout;
     return *this;
 }

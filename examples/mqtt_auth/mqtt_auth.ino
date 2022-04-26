@@ -9,7 +9,7 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
-#include <PubSubClient.h>
+#include <Dashboard.h>>
 
 // Update these with values suitable for your network.
 byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
@@ -21,7 +21,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 }
 
 EthernetClient ethClient;
-PubSubClient client(server, 1883, callback, ethClient);
+Dashboard client(server, 1883, callback, ethClient);
 
 void setup()
 {

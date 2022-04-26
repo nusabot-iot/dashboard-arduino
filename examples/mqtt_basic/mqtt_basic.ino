@@ -1,5 +1,5 @@
 /*
- Basic MQTT example
+ Basic example
 
  This sketch demonstrates the basic capabilities of the library.
  It connects to an MQTT server then:
@@ -8,14 +8,14 @@
     it receives. NB - it assumes the received payloads are strings not binary
 
  It will reconnect to the server if the connection is lost using a blocking
- reconnect function. See the 'mqtt_reconnect_nonblocking' example for how to
+ reconnect function. See the 'reconnect_nonblocking' example for how to
  achieve the same result without blocking the main loop.
  
 */
 
 #include <SPI.h>
 #include <Ethernet.h>
-#include <PubSubClient.h>
+#include <Dashboard.h>
 
 // Update these with values suitable for your network.
 byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
@@ -33,7 +33,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 }
 
 EthernetClient ethClient;
-PubSubClient client(ethClient);
+Dashboard client(ethClient);
 
 void reconnect() {
   // Loop until we're reconnected

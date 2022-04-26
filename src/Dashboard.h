@@ -1,11 +1,12 @@
 /*
- PubSubClient.h - A simple client for MQTT.
-  Nick O'Leary
-  http://knolleary.net
+  Dashboard.h - Library for Dashboard IoT Platform.
+  Lorenz Adam Damara
+  https://dashboard.nusabot.com
 */
 
-#ifndef PubSubClient_h
-#define PubSubClient_h
+
+#ifndef Dashboard_h
+#define Dashboard_h
 
 #include <Arduino.h>
 #include "IPAddress.h"
@@ -85,7 +86,7 @@
 
 #define CHECK_STRING_LENGTH(l,s) if (l+2+strnlen(s, this->bufferSize) > this->bufferSize) {_client->stop();return false;}
 
-class PubSubClient : public Print {
+class Dashboard : public Print {
 private:
    Client* _client;
    uint8_t* buffer;
@@ -113,31 +114,31 @@ private:
    Stream* stream;
    int _state;
 public:
-   PubSubClient();
-   PubSubClient(Client& client);
-   PubSubClient(IPAddress, uint16_t, Client& client);
-   PubSubClient(IPAddress, uint16_t, Client& client, Stream&);
-   PubSubClient(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
-   PubSubClient(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
-   PubSubClient(uint8_t *, uint16_t, Client& client);
-   PubSubClient(uint8_t *, uint16_t, Client& client, Stream&);
-   PubSubClient(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
-   PubSubClient(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
-   PubSubClient(const char*, uint16_t, Client& client);
-   PubSubClient(const char*, uint16_t, Client& client, Stream&);
-   PubSubClient(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
-   PubSubClient(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+   Dashboard();
+   Dashboard(Client& client);
+   Dashboard(IPAddress, uint16_t, Client& client);
+   Dashboard(IPAddress, uint16_t, Client& client, Stream&);
+   Dashboard(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
+   Dashboard(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+   Dashboard(uint8_t *, uint16_t, Client& client);
+   Dashboard(uint8_t *, uint16_t, Client& client, Stream&);
+   Dashboard(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
+   Dashboard(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+   Dashboard(const char*, uint16_t, Client& client);
+   Dashboard(const char*, uint16_t, Client& client, Stream&);
+   Dashboard(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
+   Dashboard(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
 
-   ~PubSubClient();
+   ~Dashboard();
 
-   PubSubClient& setServer(IPAddress ip, uint16_t port);
-   PubSubClient& setServer(uint8_t * ip, uint16_t port);
-   PubSubClient& setServer(const char * domain, uint16_t port);
-   PubSubClient& setCallback(MQTT_CALLBACK_SIGNATURE);
-   PubSubClient& setClient(Client& client);
-   PubSubClient& setStream(Stream& stream);
-   PubSubClient& setKeepAlive(uint16_t keepAlive);
-   PubSubClient& setSocketTimeout(uint16_t timeout);
+   Dashboard& setServer(IPAddress ip, uint16_t port);
+   Dashboard& setServer(uint8_t * ip, uint16_t port);
+   Dashboard& setServer(const char * domain, uint16_t port);
+   Dashboard& setCallback(MQTT_CALLBACK_SIGNATURE);
+   Dashboard& setClient(Client& client);
+   Dashboard& setStream(Stream& stream);
+   Dashboard& setKeepAlive(uint16_t keepAlive);
+   Dashboard& setSocketTimeout(uint16_t timeout);
 
    boolean setBufferSize(uint16_t size);
    uint16_t getBufferSize();
@@ -180,5 +181,112 @@ public:
 
 };
 
+
+#endif
+
+
+#ifndef DashboardTimer_H
+#define DashboardTimer_H
+
+#ifndef __AVR__
+#include <functional>
+#endif // __AVR__
+
+#if defined(ARDUINO) && ARDUINO >= 100
+#include <Arduino.h>
+#else
+#include <WProgram.h>
+#endif
+
+#ifndef __AVR__
+typedef std::function<void(void)> timer_callback;
+#else
+typedef void (*timer_callback)();
+#endif // __AVR__
+
+class DashboardTimer {
+
+public:
+    // maximum number of timers
+    const static int MAX_TIMERS = 10;
+
+    // setTimer() constants
+    const static int RUN_FOREVER = 0;
+    const static int RUN_ONCE = 1;
+
+    // constructor
+    DashboardTimer();
+
+    // this function must be called inside loop()
+    void run();
+
+    // call function f every d milliseconds
+    int setInterval(unsigned long d, timer_callback f);
+
+    // call function f once after d milliseconds
+    int setTimeout(unsigned long d, timer_callback f);
+
+    // call function f every d milliseconds for n times
+    int setTimer(unsigned long d, timer_callback f, int n);
+
+    // destroy the specified timer
+    void deleteTimer(int numTimer);
+
+    // restart the specified timer
+    void restartTimer(int numTimer);
+
+    // returns true if the specified timer is enabled
+    boolean isEnabled(int numTimer);
+
+    // enables the specified timer
+    void enable(int numTimer);
+
+    // disables the specified timer
+    void disable(int numTimer);
+
+    // enables the specified timer if it's currently disabled,
+    // and vice-versa
+    void toggle(int numTimer);
+
+    // returns the number of used timers
+    int getNumTimers();
+
+    // returns the number of available timers
+    int getNumAvailableTimers() { return MAX_TIMERS - numTimers; };
+
+private:
+    // deferred call constants
+    const static int DEFCALL_DONTRUN = 0;       // don't call the callback function
+    const static int DEFCALL_RUNONLY = 1;       // call the callback function but don't delete the timer
+    const static int DEFCALL_RUNANDDEL = 2;      // call the callback function and delete the timer
+
+    // find the first available slot
+    int findFirstFreeSlot();
+
+    // value returned by the millis() function
+    // in the previous run() call
+    unsigned long prev_millis[MAX_TIMERS];
+
+    // pointers to the callback functions
+    timer_callback callbacks[MAX_TIMERS];
+
+    // delay values
+    unsigned long delays[MAX_TIMERS];
+
+    // number of runs to be executed for each timer
+    int maxNumRuns[MAX_TIMERS];
+
+    // number of executed runs for each timer
+    int numRuns[MAX_TIMERS];
+
+    // which timers are enabled
+    boolean enabled[MAX_TIMERS];
+
+    // deferred function call (sort of) - N.B.: this array is only used in run()
+    int toBeCalled[MAX_TIMERS];
+
+    // actual number of timers in use
+    int numTimers;
+};
 
 #endif
