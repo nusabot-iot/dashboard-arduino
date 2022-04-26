@@ -56,8 +56,8 @@ void subscribe(char* topic, byte* payload, unsigned int length) {
 Dashboard client(server, 1883, subscribe, espClient);
 
 void publish(){
-  int pot = digitalRead(BUTTON);
-  sprintf(msg, "%ld", pot);
+  int button = digitalRead(BUTTON);
+  sprintf(msg, "%ld", button);
   client.publish("authProject/button", msg);
 }
 
