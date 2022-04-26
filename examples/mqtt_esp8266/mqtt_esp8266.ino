@@ -1,28 +1,26 @@
-#include <ESP8266WiFi.h>
-#include <Dashboard.h>
+#include <WiFi.h>
+#include "Dashboard.h"
 
-#define POTENTOIMETER A0    // Using potentiometer as example. (Menggunakan potentiometer sebagai contoh)
+#define BUTTON 34    // Using potentiometer as example. (Menggunakan potentiometer sebagai contoh)
+#define LED 15
 
-// Update these with values suitable for your network.
-// Ubah value berikut sesuai jaringan kamu.
-const char* ssid = "........";
-const char* password = "........";
+// Update these with values suitable for your network. (Ubah value berikut sesuai jaringan kamu.)
+const char* ssid = "Wokwi-GUEST";
+const char* password = "";
 const char* server = "broker.emqx.io";
-String authProject = "........";
-String subscribeTopic = "........";
+const char* authProject = "nusabot";
 
-// Set the Client ID with random number. You can change with any Client ID.
-// Atur Client ID dengan nomor acak. Anda bisa menggantinya dengan Client ID apapun.
+// Set the Client ID with random number. You can change with any Client ID. (Atur Client ID dengan nomor acak. Anda bisa menggantinya dengan Client ID apapun.)
 // String CleintId = "YourClientId";
-String clientId = "ClientName-" + String(random(0xffff), HEX);
+const String clientId = "ClientName-" + String(random(0xffff), HEX);
 
 WiFiClient espClient;
-Dashboard client(espClient);
+
+DashboardTimer timer;
 char msg[50];
 long lastReconnectAttempt = 0;
 
-// Create variable to store message for "if" condition
-// Buat variabel untuk menyimpan pesan untuk kondisi "if"
+// Create variable to store message for "if" condition. (Buat variabel untuk menyimpan pesan untuk kondisi "if")
 String subsMessage;
 
 void setup_wifi() {
@@ -44,51 +42,58 @@ void subscribe(char* topic, byte* payload, unsigned int length) {
     subsMessage = subsMessage + (char)payload[i];
   }
 
-  if(String(topic) == authProject + "/" + subscribeTopic + "/led"){
-    digitalWrite(BUILTIN_LED, subMessage.toInt());
+  if(String(topic) == String(authProject) + "/led"){
+    digitalWrite(LED, subsMessage.toInt());
+
+    if(subsMessage.toInt() == 1){
+      Serial.println("LED ON");
+    } else {
+      Serial.println("LED OFF");
+    }
   }
-  subMessage = "";
+  subsMessage = "";
 }
+
+Dashboard client(server, 1883, subscribe, espClient);
 
 void publish(){
-  int pot = analogRead(POTENTOIMETER);
-
-  unsigned long now = millis();
-  if (now - lastMsg > 2000) {   //Send data every 2 seconds (kirim data setiap 2 detik)
-    lastMsg = now;
-    sprintf(msg, "%ld", pot);
-    client.publish(authProject + "/" + subscribeTopic + "/pot", msg);
-  }
+  int pot = digitalRead(BUTTON);
+  sprintf(msg, "%ld", pot);
+  client.publish("authProject/button", msg);
 }
 
-boolean reconnect() {
-  if (client.connect(clientId)) {
-    client.subscribe(authProject + "/" + subscribeTopic + "/+");
-  }
-  return client.connected();
-}
-
-void setup() {
-  pinMode(BUILTIN_LED, OUTPUT);       // Initialize the BUILTIN_LED pin as an output (Inisialisasi BUILTIN_LED sebagai output)
-  pinMode(POTENTIOMETER, INPUT)       // Initialize A0 as input for analog sensor. You can use potentiometer fo example. (Inisialisasi A0 sebagai input untuk sensor analog. Anda dapat menggunakan )
-  Serial.begin(115200);
-  setup_wifi();
-  client.setServer(server, 1883);
-  client.setCallback(subscribe);
-}
-
-void loop() {
+void reconnect() {
   if (!client.connected()) {
     long now = millis();
-    if (now - lastReconnectAttempt > 5000) {
+    if (now - lastReconnectAttempt > 5000) {    // Reconnect every 5 second. (Menghubungkan ulang setiap 5 detik.)
       lastReconnectAttempt = now;
-      if (reconnect()) {
+      if (client.connect(clientId.c_str())) {
+        client.subscribe("nusabot/+");
         lastReconnectAttempt = 0;
       }
     }
+  }
+}
+
+void setup() {
+  pinMode(LED, OUTPUT);       // Initialize the BUILTIN_LED pin as an output (Inisialisasi BUILTIN_LED sebagai output)
+  pinMode(BUTTON, INPUT);      // Initialize A0 as input for analog sensor. You can use potentiometer fo example. (Inisialisasi A0 sebagai input untuk sensor analog. Anda dapat menggunakan )
+  
+  Serial.begin(115200);
+  setup_wifi();
+  timer.setInterval(1000L, publish); //Publish message every 1 second. Non-blocking (Publish pesan setiap 1 detik. Non-blocking)
+}
+
+void loop() {
+  //Device dissconnected (Perangkat terputus)
+  if (!client.connected()) {
+    reconnect();
   } else {
     // Device connected (perangkat terhubung)
     client.loop();
-    publish();
+    timer.run();
+
+    //==PUT YOUR CODE HERE FOR PROCESS==//
+    //==LETAKAN KODE PROGRAM DISINI UNTUK DILAKUKAN PROSES==//
   }
 }
