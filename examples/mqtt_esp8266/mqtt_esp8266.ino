@@ -1,8 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <Dashboard.h>
 
-#define MSG_BUFFER_SIZE	(50)
-
 #define POTENTOIMETER A0    // Using potentiometer as example. (Menggunakan potentiometer sebagai contoh)
 
 // Update these with values suitable for your network.
@@ -20,7 +18,7 @@ String clientId = "ClientName-" + String(random(0xffff), HEX);
 
 WiFiClient espClient;
 Dashboard client(espClient);
-char msg[MSG_BUFFER_SIZE];
+char msg[50];
 long lastReconnectAttempt = 0;
 
 // Create variable to store message for "if" condition
@@ -53,11 +51,13 @@ void subscribe(char* topic, byte* payload, unsigned int length) {
 }
 
 void publish(){
+  int pot = analogRead(POTENTOIMETER);
+
   unsigned long now = millis();
   if (now - lastMsg > 2000) {   //Send data every 2 seconds (kirim data setiap 2 detik)
     lastMsg = now;
-    sprintf (msg, MSG_BUFFER_SIZE, "%ld", value);
-    client.publish("outTopic", msg);
+    sprintf(msg, "%ld", pot);
+    client.publish(authProject + "/" + subscribeTopic + "/pot", msg);
   }
 }
 
