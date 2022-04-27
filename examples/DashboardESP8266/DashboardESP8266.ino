@@ -1,5 +1,5 @@
 #include <ESP8266WiFi.h>
-#include <Dashboard.h>
+#include <DashboardWiFi.h>
 
 #define BUTTON 12    // Using Button on GPIO12. (Menggunakan Button pada GPIO12)
 
@@ -53,7 +53,7 @@ void subscribe(char* topic, byte* payload, unsigned int length) {
   subsMessage = "";
 }
 
-Dashboard client(server, 1883, subscribe, espClient);
+Dashboard client(server, 1883, espClient);
 
 void publish(){
   int button = digitalRead(BUTTON);
@@ -80,6 +80,7 @@ void setup() {
   
   Serial.begin(115200);
   setup_wifi();
+  client.setCallback(subscribe);
   timer.setInterval(1000L, publish); //Publish message every 1 second. Non-blocking (Publish pesan setiap 1 detik. Non-blocking)
 }
 
