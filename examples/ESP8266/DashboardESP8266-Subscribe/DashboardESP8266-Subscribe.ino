@@ -34,12 +34,6 @@ void subscribe(char* topic, byte* payload, unsigned int length) {
   subsMessage = "";
 }
 
-void publish(){
-  int button = digitalRead(BUTTON);
-  sprintf(msg, "%ld", button);
-  dashboard.publish(authProject + "/button", msg);
-}
-
 void setup() {
   pinMode(BUILTIN_LED, OUTPUT);                 // Initialize the BUILTIN_LED pin as an output (Inisialisasi BUILTIN_LED sebagai output)
 
@@ -51,7 +45,6 @@ void setup() {
 void loop() {
   reconnectCheck(clientId, authProject);        //Check device are connected to the server. (Periksa apakah perangkat terhubung ke server.)
   dashboard.loop();
-  timer.run();
 
   //==PUT YOUR CODE HERE FOR PROCESS==//
   //==LETAKAN KODE PROGRAM DISINI UNTUK DILAKUKAN PROSES==//
