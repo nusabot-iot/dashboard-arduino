@@ -643,27 +643,27 @@ boolean Dashboard::loop() {
     return false;
 }
 
-boolean Dashboard::publish(const char* topic, const char* payload) {
-    return publish(topic,(const uint8_t*)payload, payload ? strnlen(payload, this->bufferSize) : 0,false);
+boolean Dashboard::publish(String topic, const char* payload) {
+    return publish(topic.c_str(),(const uint8_t*)payload, payload ? strnlen(payload, this->bufferSize) : 0,false);
 }
 
-boolean Dashboard::publish(const char* topic, const char* payload, boolean retained) {
-    return publish(topic,(const uint8_t*)payload, payload ? strnlen(payload, this->bufferSize) : 0,retained);
+boolean Dashboard::publish(String topic, const char* payload, boolean retained) {
+    return publish(topic.c_str(),(const uint8_t*)payload, payload ? strnlen(payload, this->bufferSize) : 0,retained);
 }
 
-boolean Dashboard::publish(const char* topic, const uint8_t* payload, unsigned int plength) {
-    return publish(topic, payload, plength, false);
+boolean Dashboard::publish(String topic, const uint8_t* payload, unsigned int plength) {
+    return publish(topic.c_str(), payload, plength, false);
 }
 
-boolean Dashboard::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
+boolean Dashboard::publish(String topic, const uint8_t* payload, unsigned int plength, boolean retained) {
     if (connected()) {
-        if (this->bufferSize < MQTT_MAX_HEADER_SIZE + 2+strnlen(topic, this->bufferSize) + plength) {
+        if (this->bufferSize < MQTT_MAX_HEADER_SIZE + 2+strnlen(topic.c_str(), this->bufferSize) + plength) {
             // Too long
             return false;
         }
         // Leave room in the buffer for header and variable length field
         uint16_t length = MQTT_MAX_HEADER_SIZE;
-        length = writeString(topic,this->buffer,length);
+        length = writeString(topic.c_str(),this->buffer,length);
 
         // Add payload
         uint16_t i;
