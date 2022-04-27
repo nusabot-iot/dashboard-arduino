@@ -55,7 +55,7 @@ void setup() {
 }
 
 void loop() {
-  reconnectCheck(clientId, authProject);  //Check device are connected to the server. (Periksa apakah perangkat terhubung ke server.)
+  reconnectCheck(clientId, authProject);        //Check device are connected to the server. (Periksa apakah perangkat terhubung ke server.)
   dashboard.loop();
   timer.run();
 
