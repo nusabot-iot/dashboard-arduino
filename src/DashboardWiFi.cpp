@@ -5,7 +5,7 @@
   https://dashboard.nusabot.com
 */
 
-#include "Dashboard.h"
+#include "DashboardWiFi.h"
 #include "Arduino.h"
 
 static inline unsigned long elapsed() { return millis(); }
