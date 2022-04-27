@@ -1,12 +1,12 @@
 {
-    "name": "Dashboard",
+    "name": "Dashboard IoT",
     "keywords": "dashboard, ethernet, mqtt, m2m, iot",
     "description": "Library for Dashboard IoT Platform.",
     "repository": {
         "type": "git",
         "url": "https://github.com/nusabot-iot/dashboard-arduino"
     },
-    "version": "1.0",
+    "version": "1.0.0",
     "exclude": "tests",
     "examples": "examples/*/*.ino",
     "frameworks": "arduino",
