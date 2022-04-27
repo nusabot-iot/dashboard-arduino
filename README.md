@@ -9,8 +9,8 @@ Pustaka menyertakan contoh kode program. Lihat Berkas -> Contoh -> Dashboard (Fi
 ## Limitasi (Limitations)
 
  - Hanya dapat melakukan publish dengan QoS 0. Dapat melakukan subscribe pada QoS 0 atau 1.
- - Ukuran maksimum data yang dikirim termasuk header adalah **256 byte** secara bawaan (default). Dapat diatur dengan memanggil `PubSubClient::setBufferSize(size)`.
- - Interval keepalive diatur ke 15 detik secara bawaan (default). Dapat diatur dengan memanggil `PubSubClient::setKeepAlive(keepAlive)`.
+ - Ukuran maksimum data yang dikirim termasuk header adalah **256 byte** secara bawaan (default). Dapat diatur dengan memanggil `Dashboard::setBufferSize(size)`.
+ - Interval keepalive diatur ke 15 detik secara bawaan (default). Dapat diatur dengan memanggil `Dashboard::setKeepAlive(keepAlive)`.
  - Klien menggunakan MQTT 3.1.1 secara bawaan (default).
 
 
