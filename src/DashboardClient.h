@@ -28,42 +28,42 @@
 #include <Stream.h>
 
 extern "C" {
-#include "lwmqtt/lwmqtt.h"
+#include "lwmqtt.h"
 }
 
-typedef uint32_t (*MQTTClientClockSource)();
+typedef uint32_t (*DashboardClockSource)();
 
 typedef struct {
   uint32_t start;
   uint32_t timeout;
-  MQTTClientClockSource millis;
+  DashboardClockSource millis;
 } lwmqtt_arduino_timer_t;
 
 typedef struct {
   Client *client;
 } lwmqtt_arduino_network_t;
 
-class MQTTClient;
+class Dashboard;
 
-typedef void (*MQTTClientCallbackSimple)(String &topic, String &payload);
-typedef void (*MQTTClientCallbackAdvanced)(MQTTClient *client, char topic[], char bytes[], int length);
+typedef void (*DashboardCallbackSimple)(String &topic, String &payload);
+typedef void (*DashboardCallbackAdvanced)(Dashboard *client, char topic[], char bytes[], int length);
 #if MQTT_HAS_FUNCTIONAL
-typedef std::function<void(String &topic, String &payload)> MQTTClientCallbackSimpleFunction;
-typedef std::function<void(MQTTClient *client, char topic[], char bytes[], int length)>
-    MQTTClientCallbackAdvancedFunction;
+typedef std::function<void(String &topic, String &payload)> DashboardCallbackSimpleFunction;
+typedef std::function<void(Dashboard *client, char topic[], char bytes[], int length)>
+    DashboardCallbackAdvancedFunction;
 #endif
 
 typedef struct {
-  MQTTClient *client = nullptr;
-  MQTTClientCallbackSimple simple = nullptr;
-  MQTTClientCallbackAdvanced advanced = nullptr;
+  Dashboard *client = nullptr;
+  DashboardCallbackSimple simple = nullptr;
+  DashboardCallbackAdvanced advanced = nullptr;
 #if MQTT_HAS_FUNCTIONAL
-  MQTTClientCallbackSimpleFunction functionSimple = nullptr;
-  MQTTClientCallbackAdvancedFunction functionAdvanced = nullptr;
+  DashboardCallbackSimpleFunction functionSimple = nullptr;
+  DashboardCallbackAdvancedFunction functionAdvanced = nullptr;
 #endif
-} MQTTClientCallback;
+} DashboardCallback;
 
-class MQTTClient {
+class Dashboard {
  private:
   size_t bufSize = 0;
   uint8_t *readBuf = nullptr;
@@ -78,7 +78,7 @@ class MQTTClient {
   IPAddress address;
   int port = 0;
   lwmqtt_will_t *will = nullptr;
-  MQTTClientCallback callback;
+  DashboardCallback callback;
 
   lwmqtt_arduino_network_t network = {nullptr};
   lwmqtt_arduino_timer_t timer1 = {0, 0, nullptr};
@@ -92,9 +92,9 @@ class MQTTClient {
  public:
   void *ref = nullptr;
 
-  explicit MQTTClient(int bufSize = 128);
+  explicit Dashboard(int bufSize = 128);
 
-  ~MQTTClient();
+  ~Dashboard();
 
   void begin(Client &_client);
   void begin(const char _hostname[], Client &_client) { this->begin(_hostname, 1883, _client); }
@@ -108,14 +108,14 @@ class MQTTClient {
     this->setHost(_address, _port);
   }
 
-  void onMessage(MQTTClientCallbackSimple cb);
-  void onMessageAdvanced(MQTTClientCallbackAdvanced cb);
+  void onMessage(DashboardCallbackSimple cb);
+  void onMessageAdvanced(DashboardCallbackAdvanced cb);
 #if MQTT_HAS_FUNCTIONAL
-  void onMessage(MQTTClientCallbackSimpleFunction cb);
-  void onMessageAdvanced(MQTTClientCallbackAdvancedFunction cb);
+  void onMessage(DashboardCallbackSimpleFunction cb);
+  void onMessageAdvanced(DashboardCallbackAdvancedFunction cb);
 #endif
 
-  void setClockSource(MQTTClientClockSource cb);
+  void setClockSource(DashboardClockSource cb);
 
   void setHost(const char _hostname[]) { this->setHost(_hostname, 1883); }
   void setHost(const char hostname[], int port);

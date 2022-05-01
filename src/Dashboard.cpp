@@ -106,10 +106,10 @@ inline lwmqtt_err_t lwmqtt_arduino_network_write(void *ref, uint8_t *buffer, siz
   return LWMQTT_SUCCESS;
 }
 
-static void MQTTClientHandler(lwmqtt_client_t * /*client*/, void *ref, lwmqtt_string_t topic,
+static void DashboardHandler(lwmqtt_client_t * /*client*/, void *ref, lwmqtt_string_t topic,
                               lwmqtt_message_t message) {
   // get callback
-  auto cb = (MQTTClientCallback *)ref;
+  auto cb = (DashboardCallback *)ref;
 
   // null terminate topic
   char terminated_topic[topic.len + 1];
@@ -165,14 +165,14 @@ static void MQTTClientHandler(lwmqtt_client_t * /*client*/, void *ref, lwmqtt_st
 #endif
 }
 
-MQTTClient::MQTTClient(int bufSize) {
+Dashboard::Dashboard(int bufSize) {
   // allocate buffers
   this->bufSize = (size_t)bufSize;
   this->readBuf = (uint8_t *)malloc((size_t)bufSize + 1);
   this->writeBuf = (uint8_t *)malloc((size_t)bufSize);
 }
 
-MQTTClient::~MQTTClient() {
+Dashboard::~Dashboard() {
   // free will
   this->clearWill();
 
@@ -186,7 +186,7 @@ MQTTClient::~MQTTClient() {
   free(this->writeBuf);
 }
 
-void MQTTClient::begin(Client &_client) {
+void Dashboard::begin(Client &_client) {
   // set client
   this->netClient = &_client;
 
@@ -200,10 +200,10 @@ void MQTTClient::begin(Client &_client) {
   lwmqtt_set_network(&this->client, &this->network, lwmqtt_arduino_network_read, lwmqtt_arduino_network_write);
 
   // set callback
-  lwmqtt_set_callback(&this->client, (void *)&this->callback, MQTTClientHandler);
+  lwmqtt_set_callback(&this->client, (void *)&this->callback, DashboardHandler);
 }
 
-void MQTTClient::onMessage(MQTTClientCallbackSimple cb) {
+void Dashboard::onMessage(DashboardCallbackSimple cb) {
   // set callback
   this->callback.client = this;
   this->callback.simple = cb;
@@ -214,7 +214,7 @@ void MQTTClient::onMessage(MQTTClientCallbackSimple cb) {
 #endif
 }
 
-void MQTTClient::onMessageAdvanced(MQTTClientCallbackAdvanced cb) {
+void Dashboard::onMessageAdvanced(DashboardCallbackAdvanced cb) {
   // set callback
   this->callback.client = this;
   this->callback.simple = nullptr;
@@ -226,7 +226,7 @@ void MQTTClient::onMessageAdvanced(MQTTClientCallbackAdvanced cb) {
 }
 
 #if MQTT_HAS_FUNCTIONAL
-void MQTTClient::onMessage(MQTTClientCallbackSimpleFunction cb) {
+void Dashboard::onMessage(DashboardCallbackSimpleFunction cb) {
   // set callback
   this->callback.client = this;
   this->callback.simple = nullptr;
@@ -235,7 +235,7 @@ void MQTTClient::onMessage(MQTTClientCallbackSimpleFunction cb) {
   this->callback.functionAdvanced = nullptr;
 }
 
-void MQTTClient::onMessageAdvanced(MQTTClientCallbackAdvancedFunction cb) {
+void Dashboard::onMessageAdvanced(DashboardCallbackAdvancedFunction cb) {
   // set callback
   this->callback.client = this;
   this->callback.simple = nullptr;
@@ -245,18 +245,18 @@ void MQTTClient::onMessageAdvanced(MQTTClientCallbackAdvancedFunction cb) {
 }
 #endif
 
-void MQTTClient::setClockSource(MQTTClientClockSource cb) {
+void Dashboard::setClockSource(DashboardClockSource cb) {
   this->timer1.millis = cb;
   this->timer2.millis = cb;
 }
 
-void MQTTClient::setHost(IPAddress _address, int _port) {
+void Dashboard::setHost(IPAddress _address, int _port) {
   // set address and port
   this->address = _address;
   this->port = _port;
 }
 
-void MQTTClient::setHost(const char _hostname[], int _port) {
+void Dashboard::setHost(const char _hostname[], int _port) {
   // free hostname if set
   if (this->hostname != nullptr) {
     free((void *)this->hostname);
@@ -267,7 +267,7 @@ void MQTTClient::setHost(const char _hostname[], int _port) {
   this->port = _port;
 }
 
-void MQTTClient::setWill(const char topic[], const char payload[], bool retained, int qos) {
+void Dashboard::setWill(const char topic[], const char payload[], bool retained, int qos) {
   // return if topic is missing
   if (topic == nullptr || strlen(topic) == 0) {
     return;
@@ -293,7 +293,7 @@ void MQTTClient::setWill(const char topic[], const char payload[], bool retained
   this->will->qos = (lwmqtt_qos_t)qos;
 }
 
-void MQTTClient::clearWill() {
+void Dashboard::clearWill() {
   // return if not set
   if (this->will == nullptr) {
     return;
@@ -314,13 +314,13 @@ void MQTTClient::clearWill() {
   this->will = nullptr;
 }
 
-void MQTTClient::setKeepAlive(int _keepAlive) { this->keepAlive = _keepAlive; }
+void Dashboard::setKeepAlive(int _keepAlive) { this->keepAlive = _keepAlive; }
 
-void MQTTClient::setCleanSession(bool _cleanSession) { this->cleanSession = _cleanSession; }
+void Dashboard::setCleanSession(bool _cleanSession) { this->cleanSession = _cleanSession; }
 
-void MQTTClient::setTimeout(int _timeout) { this->timeout = _timeout; }
+void Dashboard::setTimeout(int _timeout) { this->timeout = _timeout; }
 
-bool MQTTClient::publish(const char topic[], const char payload[], int length, bool retained, int qos) {
+bool Dashboard::publish(const char topic[], const char payload[], int length, bool retained, int qos) {
   // return immediately if not connected
   if (!this->connected()) {
     return false;
@@ -345,7 +345,7 @@ bool MQTTClient::publish(const char topic[], const char payload[], int length, b
   return true;
 }
 
-bool MQTTClient::connect(const char clientID[], const char username[], const char password[], bool skip) {
+bool Dashboard::connect(const char clientID[], const char username[], const char password[], bool skip) {
   // close left open connection if still connected
   if (!skip && this->connected()) {
     this->close();
@@ -398,7 +398,7 @@ bool MQTTClient::connect(const char clientID[], const char username[], const cha
   return true;
 }
 
-bool MQTTClient::subscribe(const char topic[], int qos) {
+bool Dashboard::subscribe(const char topic[], int qos) {
   // return immediately if not connected
   if (!this->connected()) {
     return false;
@@ -416,7 +416,7 @@ bool MQTTClient::subscribe(const char topic[], int qos) {
   return true;
 }
 
-bool MQTTClient::unsubscribe(const char topic[]) {
+bool Dashboard::unsubscribe(const char topic[]) {
   // return immediately if not connected
   if (!this->connected()) {
     return false;
@@ -434,7 +434,7 @@ bool MQTTClient::unsubscribe(const char topic[]) {
   return true;
 }
 
-bool MQTTClient::loop() {
+bool Dashboard::loop() {
   // return immediately if not connected
   if (!this->connected()) {
     return false;
@@ -466,13 +466,13 @@ bool MQTTClient::loop() {
   return true;
 }
 
-bool MQTTClient::connected() {
+bool Dashboard::connected() {
   // a client is connected if the network is connected, a client is available and
   // the connection has been properly initiated
   return this->netClient != nullptr && this->netClient->connected() == 1 && this->_connected;
 }
 
-bool MQTTClient::disconnect() {
+bool Dashboard::disconnect() {
   // return immediately if not connected anymore
   if (!this->connected()) {
     return false;
@@ -487,7 +487,7 @@ bool MQTTClient::disconnect() {
   return this->_lastError == LWMQTT_SUCCESS;
 }
 
-void MQTTClient::close() {
+void Dashboard::close() {
   // set flag
   this->_connected = false;
 
