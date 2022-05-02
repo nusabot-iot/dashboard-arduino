@@ -143,13 +143,21 @@ class Dashboard {
   }
   bool connect(const char clientID[], const char username[], const char password[], bool skip = false);
 
-  bool publish(const String &topic) { return this->publish(topic.c_str(), ""); }
-  bool publish(const char topic[]) { return this->publish(topic, ""); }
-  bool publish(const String &topic, const String &payload) { return this->publish(topic.c_str(), payload.c_str()); }
-  bool publish(const String &topic, const String &payload, bool retained, int qos) {
-    return this->publish(topic.c_str(), payload.c_str(), retained, qos);
+  bool publish(const String &authProject, const String &topic) { 
+    return this->publish((authProject +"/"+topic).c_str(), ""); 
   }
-  bool publish(const char topic[], const String &payload) { return this->publish(topic, payload.c_str()); }
+  bool publish(const char topic[]) { 
+    return this->publish(topic, "");
+  }
+  bool publish(const String &authProject, const String &topic, const String &payload) {
+    return this->publish((authProject +"/"+topic).c_str(), payload.c_str());
+  }
+  bool publish(const String &authProject, const String &topic, const String &payload, bool retained, int qos) {
+    return this->publish((authProject +"/"+topic).c_str(), payload.c_str(), retained, qos);
+  }
+  bool publish(const char topic[], const String &payload) {
+    return this->publish(topic, payload.c_str());
+  }
   bool publish(const char topic[], const String &payload, bool retained, int qos) {
     return this->publish(topic, payload.c_str(), retained, qos);
   }
