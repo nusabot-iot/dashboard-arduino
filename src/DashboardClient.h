@@ -28,7 +28,7 @@
 #include <Stream.h>
 
 extern "C" {
-#include "lwmqtt.h"
+#include "lwmqtt/lwmqtt.h"
 }
 
 typedef uint32_t (*DashboardClockSource)();
