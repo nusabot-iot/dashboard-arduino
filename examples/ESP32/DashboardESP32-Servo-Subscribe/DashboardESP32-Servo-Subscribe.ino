@@ -3,44 +3,43 @@
 #include <Dashboard.h>
 #include "Connection.h"
 
-// Update these with values suitable for your network. (Ubah value berikut sesuai jaringan kamu.)
-const char* ssid = "......";
-const char* password = "......";
-const char* server = "broker.emqx.io";
+// Ubah nilai berikut sesuai jaringan Anda.
+const char ssid[] = "......";
+const char pass[] = "......";
+const char server[] = "broker.emqx.io";
 const String authProject = "......";
-
-// Set the Client ID with random number. You can change with any Client ID. (Atur Client ID dengan nomor acak. Anda bisa menggantinya dengan Client ID apapun.)
+// Atur Client ID dengan nomor acak. Anda bisa menggantinya dengan Client ID apapun.
 // String CleintId = "YourClientId";
-const String clientId = "ClientName-" + String(random(0xffff), HEX);
-
-// Create variable to store message for "if" condition. (Buat variabel untuk menyimpan pesan untuk kondisi "if")
-String subsMessage;
+const String clientId = "Nusabot-" + String(random(0xffff), HEX);
 
 Servo myservo;
 
-void subscribe(char* topic, byte* payload, unsigned int length) {
-  for (int i = 0; i < length; i++) {
-    subsMessage = subsMessage + (char)payload[i];
+void subscribe(String &topic, String &message) {
+  if(topic == authProject + "/data/servo"){
+    myservo.write(message.toInt());
   }
-
-  if(String(topic) == authProject + "/servo"){
-    myservo.write(subsMessage.toInt());
-  }
-  subsMessage = "";
+  Serial.println("data masuk: \n" + topic + " - " + message);
 }
 
 void setup() {
-  myservo.attach(32);                            // attaches the servo on GIO4 to the servo object
-
+  myservo.attach(32);                    //  Inisialisasi servo pada GPIO32 (D32)
   Serial.begin(115200);
-  setupDashboard(ssid, password, server, 1883);
-  dashboard.setCallback(subscribe);             // Set device as subscriber. (Atur perangkat sebagai subscriber.)
+  WiFi.begin(ssid, pass);
+  dashboard.begin(server, net);
+
+  dashboard.onMessage(subscribe);       // Lakukan subscribe pada fungsi subscribe().
+
+  setupDashboard(authProject, clientId);
 }
 
 void loop() {
-  reconnectCheck(clientId, authProject);        //Check device are connected to the server. (Periksa apakah perangkat terhubung ke server.)
   dashboard.loop();
+  //delay(10);                          // Hapus komentar untuk memberikan delay 10 milidetik jika terjadi kendala pada stabilitas WiFi.
 
-  //==PUT YOUR CODE HERE FOR PROCESS==//
+  // Periksa apakah perangkat masih terhubung.
+  if (!dashboard.connected()) {
+    setupDashboard(authProject, clientId);
+  }
+
   //==LETAKAN KODE PROGRAM DISINI UNTUK DILAKUKAN PROSES==//
 }
