@@ -2,42 +2,40 @@
 #include <Dashboard.h>
 #include "Connection.h"
 
-#define BUTTON 12    // Using Button on GPIO12. (Menggunakan Button pada GPIO12)
+DashboardTimer timer;                   // Gunakan timer agar dapat mengeksekusi perintah setiap sekian milidetik tanpa blocking.
 
-// Update these with values suitable for your network. (Ubah value berikut sesuai jaringan kamu.)
-const char* ssid = "......";
-const char* password = "......";
-const char* server = "broker.emqx.io";
+// Ubah nilai berikut sesuai jaringan Anda.
+const char ssid[] = "......";
+const char pass[] = "......";
+const char server[] = "broker.emqx.io";
 const String authProject = "......";
-
-// Set the Client ID with random number. You can change with any Client ID. (Atur Client ID dengan nomor acak. Anda bisa menggantinya dengan Client ID apapun.)
+// Atur Client ID dengan nomor acak. Anda bisa menggantinya dengan Client ID apapun.
 // String CleintId = "YourClientId";
-const String clientId = "ClientName-" + String(random(0xffff), HEX);
+const String clientId = "Nusabot-" + String(random(0xffff), HEX);
 
-DashboardTimer timer;
-
-// Create variable to store size of payload. (Buat variabel untuk menyimpan ukuran payload.)
-char msg[50];
-
-void publish(){
-  int button = digitalRead(BUTTON);
-  sprintf(msg, "%ld", button);
-  dashboard.publish(authProject + "/button", msg);
+void publish() {
+  dashboard.publish(authProject, "hello", "world");     // Publish ke topik "authproject/data/hello" dengan pesan/payload "world".
 }
 
 void setup() {
-  pinMode(BUTTON, INPUT);                       // Initialize BUTTON as input for digital sensor. (Inisialisasi BUTTON sebagai input untuk sensor digital.)
-  
   Serial.begin(115200);
-  setupDashboard(ssid, password, server, 1883);
-  timer.setInterval(1000L, publish);            // Publish message every 1 second. Non-blocking (Publish pesan setiap 1 detik. Non-blocking)
+  WiFi.begin(ssid, pass);
+  dashboard.begin(server, net);
+
+  timer.setInterval(1000, publish);     // Lakukan publish setiap 1000 milidetik.
+
+  setupDashboard(authProject, clientId);
 }
 
 void loop() {
-  reconnectCheck(clientId, authProject);        //Check device are connected to the server. (Periksa apakah perangkat terhubung ke server.)
   dashboard.loop();
-  timer.run();
+  //delay(10);                          // Hapus komentar untuk memberikan delay 10 milidetik jika terjadi kendala pada stabilitas WiFi.
+  timer.run();                          // Jalankan timer.
 
-  //==PUT YOUR CODE HERE FOR PROCESS==//
+  // Periksa apakah perangkat masih terhubung.
+  if (!dashboard.connected()) {
+    setupDashboard(authProject, clientId);
+  }
+
   //==LETAKAN KODE PROGRAM DISINI UNTUK DILAKUKAN PROSES==//
 }
