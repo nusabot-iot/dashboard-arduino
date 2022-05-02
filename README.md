@@ -1,34 +1,95 @@
 # Dashboard untuk Arduino IDE
 
-Pustaka ini digunakan Arduino IDE untuk menghubungkan perangkat ke platform Dashboard menggunakan protokol MQTT berdasarkan [PubSubClient](https://github.com/knolleary/pubsubclient)
+Pustaka ini digunakan Arduino IDE untuk menghubungkan perangkat ke platform Dashboard menggunakan protokol MQTT berdasarkan [arduino-mqtt](https://github.com/256dpi/arduino-mqtt/)
 
-## Contoh (Examples)
+Pustaka ini mengimplementasikan "**L**ight **W**eight **MQTT**" [lwmqtt](https://github.com/256dpi/lwmqtt) MQTT 3.1.1 dimana pustaka ini dioptimalkan untuk digunakan pada perangkat tertanam (embedded device).
+
+Unduh versi terbaru dari [rilis](https://github.com/nusabot-iot/dashboard-arduino/releases) atau juga lebih baik jika unduh dan install melalui Library Manager pada Arduino IDE. Cari dengan nama **Dashboard IoT**.
+
+## Contoh
 
 Pustaka menyertakan contoh kode program. Lihat Berkas -> Contoh -> Dashboard (File -> Example -> Dashboard) pada Arduino IDE.
 
-## Limitasi (Limitations)
+Contoh berikut menggunakan ESP32 Development Board dan terhubung dengan broker EMQX:
+```c++
+#include <WiFi.h>
+#include <Dashboard.h>
+#include "Connection.h"
 
- - Hanya dapat melakukan publish dengan QoS 0. Dapat melakukan subscribe pada QoS 0 atau 1.
- - Ukuran maksimum data yang dikirim termasuk header adalah **256 byte** secara bawaan (default). Dapat diatur dengan memanggil `Dashboard::setBufferSize(size)`.
- - Interval keepalive diatur ke 15 detik secara bawaan (default). Dapat diatur dengan memanggil `Dashboard::setKeepAlive(keepAlive)`.
- - Klien menggunakan MQTT 3.1.1 secara bawaan (default).
+WiFiClient net;
+Dashboard dashboard;
+DashboardTimer timer;                   // Gunakan timer agar dapat mengeksekusi perintah setiap sekian milidetik tanpa blocking.
 
+// Ubah nilai berikut sesuai jaringan Anda.
+const char ssid[] = "ssid";
+const char pass[] = "pass";
+const char server[] = "broker.emqx.io";
+const String authProject = "YOUR_DASHBOARD_AUTH_PROJECT";
+// Atur Client ID dengan nomor acak. Anda bisa menggantinya dengan Client ID apapun.
+// String CleintId = "YourClientId";
+const String clientId = "Nusabot-" + String(random(0xffff), HEX);
+
+void setupDashboard() {
+  Serial.println("Menghubungkan ke WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(1000);
+  }
+
+  Serial.print("\nMenghubungkan ke server/broker");
+  while (!dashboard.connect(clientId.c_str())) {
+    Serial.print(".");
+    delay(1000);
+  }
+  Serial.println("\nTerhubung ke server!");
+
+  dashboard.subscribe(authProject+"/data/#");
+}
+
+void subscribe(String &topic, String &message) {
+  Serial.println("data masuk: \n" + topic + " - " + message);
+}
+
+void publish() {
+  dashboard.publish(authProject, "data/hello", "world");     // Publish ke topik "authproject/data/hello" dengan pesan "world".
+}
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, pass);
+  dashboard.begin(server, net);
+
+  dashboard.onMessage(subscribe);       // Lakukan subscribe pada fungsi subscribe().
+  timer.setInterval(1000, publish);     // Lakukan publish setiap 1000 milidetik.
+
+  setupDashboard();
+}
+
+void loop() {
+  dashboard.loop();
+  timer.run();                          // Jalankan timer.
+
+  // Periksa apakah perangkat masih terhubung.
+  if (!dashboard.connected()) {
+    setupDashboard();
+  }
+}
+```
 
 ## Perangkat Yang Didukung
 
 Pustaka menggunakan API Arduino Ethernet Client untuk berinteraksi dengan perangkat keras jaringan. Artinya pustaka ini dapat digunakan pada perangkat keras apapun yang memiliki interaktifitas API tersebut termasuk papan dan shield seperti:
 
+ - ESP8266 Development Board
+ - ESP32 Development Board
  - Arduino Ethernet
  - Arduino Ethernet Shield
- - Arduino YUN – gunakan include `YunClient` di `EthernetClient`, dan pastikan untuk melakukan `Bridge.begin()` dahulu
- - Arduino WiFi Shield - jika Anda ingin mengirim data > 90 bytes dengan shield ini,
-   aktifkan the `MQTT_MAX_TRANSFER_SIZE` di header.
- - Sparkfun WiFly Shield – [library](https://github.com/dpslwk/WiFly)
- - TI CC3000 WiFi - [library](https://github.com/sparkfun/SFE_CC3000_Library)
+ - Arduino YUN & YUN-Shield
+ - Arduino WiFi Shield
+ - Arduino/Genuino WiFi101 Shield
+ - Arduino MKR GSM 1400
  - Intel Galileo/Edison
- - ESP8266
- - ESP32
 
-## License
+## Lisensi
 
 Kode program dilisensikan dibawah GNU GENERAL PUBLIC LICENSE
