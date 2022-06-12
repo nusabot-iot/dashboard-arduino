@@ -6,7 +6,7 @@
         "type": "git",
         "url": "https://github.com/nusabot-iot/dashboard-arduino"
     },
-    "version": "2.0.2",
+    "version": "2.0.3",
     "exclude": "tests",
     "examples": "examples/*/*.ino",
     "frameworks": "arduino",
