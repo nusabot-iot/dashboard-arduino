@@ -150,19 +150,19 @@ class Dashboard {
     return this->publish(topic, "");
   }
   bool publish(const String &authProject, const String &topic, const String &payload) {
-    return this->publish((authProject +"/"+topic).c_str(), payload.c_str());
+    return this->publish((authProject +"/"+topic).c_str(), payload.c_str(), true, 1);
   }
   bool publish(const String &authProject, const String &topic, const String &payload, bool retained, int qos) {
     return this->publish((authProject +"/"+topic).c_str(), payload.c_str(), retained, qos);
   }
   bool publish(const char topic[], const String &payload) {
-    return this->publish(topic, payload.c_str());
+    return this->publish(topic, payload.c_str(), true, 1);
   }
   bool publish(const char topic[], const String &payload, bool retained, int qos) {
     return this->publish(topic, payload.c_str(), retained, qos);
   }
   bool publish(const char topic[], const char payload[]) {
-    return this->publish(topic, (char *)payload, (int)strlen(payload));
+    return this->publish(topic, (char *)payload, (int)strlen(payload), true, 1);
   }
   bool publish(const char topic[], const char payload[], bool retained, int qos) {
     return this->publish(topic, (char *)payload, (int)strlen(payload), retained, qos);
@@ -172,9 +172,9 @@ class Dashboard {
   }
   bool publish(const char topic[], const char payload[], int length, bool retained, int qos);
 
-  bool subscribe(const String &topic) { return this->subscribe(topic.c_str()); }
+  bool subscribe(const String &topic) { return this->subscribe(topic.c_str(), 1); }
   bool subscribe(const String &topic, int qos) { return this->subscribe(topic.c_str(), qos); }
-  bool subscribe(const char topic[]) { return this->subscribe(topic, 0); }
+  bool subscribe(const char topic[]) { return this->subscribe(topic, 1); }
   bool subscribe(const char topic[], int qos);
 
   bool unsubscribe(const String &topic) { return this->unsubscribe(topic.c_str()); }
